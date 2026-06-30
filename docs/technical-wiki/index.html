@@ -1,0 +1,1498 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Isomer Next Technical Wiki</title>
+    <meta
+      name="description"
+      content="Technical architecture wiki for the Isomer Next monorepo."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">IN</span>
+          <div>
+            <p class="eyebrow">Isomer Next</p>
+            <h1>Technical Wiki</h1>
+          </div>
+        </div>
+
+        <label class="search">
+          <span>Search documentation</span>
+          <input
+            id="wiki-search"
+            type="search"
+            placeholder="Search routers, packages, jobs..."
+            autocomplete="off"
+          />
+        </label>
+
+        <nav class="toc" aria-label="Sections">
+          <p>Start here</p>
+          <a href="#overview">Overview</a>
+          <a href="#system-map">System map</a>
+          <a href="#quick-start">Quick start</a>
+          <p>Architecture</p>
+          <a href="#monorepo">Monorepo</a>
+          <a href="#studio">Studio app</a>
+          <a href="#request-lifecycle">Request lifecycle</a>
+          <a href="#trpc-api">tRPC API</a>
+          <p>Product domains</p>
+          <a href="#domain-model">Domain model</a>
+          <a href="#content-publishing">Content and publishing</a>
+          <a href="#auth-permissions">Auth and permissions</a>
+          <a href="#assets-gazettes">Assets and gazettes</a>
+          <p>Packages</p>
+          <a href="#components-package">Components package</a>
+          <a href="#db-package">Database package</a>
+          <a href="#shared-packages">Shared packages</a>
+          <p>Development</p>
+          <a href="#tooling">Tooling</a>
+          <a href="#testing-ci">Testing and CI</a>
+          <a href="#ops-integrations">Ops and integrations</a>
+          <a href="#conventions">Conventions</a>
+          <a href="#risks">Risks and sharp edges</a>
+          <a href="#file-index">File index</a>
+        </nav>
+      </aside>
+
+      <main id="content" class="content">
+        <header class="hero doc-page" id="overview" data-title="Overview">
+          <div class="hero-copy">
+            <p class="eyebrow">Generated technical documentation</p>
+            <h2>Isomer Next codebase guide</h2>
+            <p class="lede">
+              Isomer Next is a pnpm/Turborepo monorepo for a government CMS and
+              site builder. Studio manages content and publishing workflows;
+              shared packages render published sites, own the database schema,
+              and provide internal runtime utilities.
+            </p>
+            <div class="hero-actions">
+              <a class="button" href="#quick-start">Start building</a>
+              <a class="button secondary" href="#file-index">Find a file</a>
+            </div>
+          </div>
+          <div class="hero-panel" aria-label="Repository facts">
+            <dl>
+              <div>
+                <dt>Package manager</dt>
+                <dd>pnpm 11.5.1</dd>
+              </div>
+              <div>
+                <dt>Runtime</dt>
+                <dd>Node &gt;= 22</dd>
+              </div>
+              <div>
+                <dt>Primary app</dt>
+                <dd>apps/studio</dd>
+              </div>
+              <div>
+                <dt>Framework</dt>
+                <dd>Next.js 16 + Pages Router</dd>
+              </div>
+              <div>
+                <dt>API</dt>
+                <dd>tRPC 11 + SuperJSON</dd>
+              </div>
+              <div>
+                <dt>Database</dt>
+                <dd>PostgreSQL, Prisma 7, Kysely</dd>
+              </div>
+            </dl>
+          </div>
+        </header>
+
+        <section class="notice">
+          <strong>Scope:</strong> this wiki is a static HTML reference generated
+          from repository inspection and parallel codebase exploration. It is
+          intended for maintainers, onboarding engineers, and agents making code
+          changes. Source paths are included throughout so details can be
+          verified against the code.
+        </section>
+
+        <section id="system-map" class="doc-page" data-title="System map">
+          <div class="section-heading">
+            <p class="eyebrow">Architecture at a glance</p>
+            <h2>System map</h2>
+            <p>
+              Studio is the editing control plane. Published sites are static
+              Next.js outputs built from database snapshots and rendered by the
+              component package.
+            </p>
+          </div>
+
+          <div class="flow-grid" role="list">
+            <article role="listitem">
+              <span>1</span>
+              <h3>Editor signs in</h3>
+              <p>
+                Email OTP and optional Singpass flows create an iron-session.
+              </p>
+            </article>
+            <article role="listitem">
+              <span>2</span>
+              <h3>Studio loads site</h3>
+              <p>
+                Pages call feature modules, which use tRPC React Query hooks.
+              </p>
+            </article>
+            <article role="listitem">
+              <span>3</span>
+              <h3>Routers call services</h3>
+              <p>
+                tRPC procedures enforce auth, rate limits, logging, and input
+                schemas.
+              </p>
+            </article>
+            <article role="listitem">
+              <span>4</span>
+              <h3>Services mutate data</h3>
+              <p>
+                Kysely/Prisma write resources, blobs, versions, permissions, and
+                audit logs.
+              </p>
+            </article>
+            <article role="listitem">
+              <span>5</span>
+              <h3>Publish triggers build</h3>
+              <p>
+                Content publish creates a Version; site deploy triggers AWS
+                CodeBuild.
+              </p>
+            </article>
+            <article role="listitem">
+              <span>6</span>
+              <h3>Template renders static site</h3>
+              <p>
+                Build scripts export JSON and the template renders with
+                isomer-components.
+              </p>
+            </article>
+          </div>
+
+          <div class="diagram">
+            <pre><code>Browser
+  -> Next.js pages in apps/studio/src/pages
+  -> Feature modules in apps/studio/src/features
+  -> tRPC client in apps/studio/src/utils/trpc.ts
+  -> /api/trpc/[trpc]
+  -> appRouter in apps/studio/src/server/modules/_app.ts
+  -> service modules under apps/studio/src/server/modules/*
+  -> PostgreSQL via @isomer/db / Prisma
+  -> AWS CodeBuild build pipeline
+  -> tooling/template + @opengovsg/isomer-components
+  -> static published website</code></pre>
+          </div>
+        </section>
+
+        <section id="quick-start" class="doc-page" data-title="Quick start">
+          <div class="section-heading">
+            <p class="eyebrow">Developer path</p>
+            <h2>Quick start</h2>
+            <p>
+              The monorepo uses workspace scripts from the root and app-specific
+              scripts inside <code>apps/studio</code>.
+            </p>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>First local setup</h3>
+              <pre><code>corepack enable
+pnpm install
+cp .env.example .env
+cd apps/studio
+pnpm setup
+cd ../..
+pnpm dev</code></pre>
+              <p>
+                Secrets are not committed. Fill local env files using the
+                project secret source before running services that talk to AWS,
+                Singpass, SearchSG, or Datadog.
+              </p>
+            </article>
+            <article>
+              <h3>Everyday commands</h3>
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Run app</th>
+                    <td><code>pnpm dev</code></td>
+                  </tr>
+                  <tr>
+                    <th>Storybook</th>
+                    <td><code>pnpm storybook</code></td>
+                  </tr>
+                  <tr>
+                    <th>Packages watch</th>
+                    <td><code>pnpm watch:packages</code></td>
+                  </tr>
+                  <tr>
+                    <th>Lint</th>
+                    <td><code>pnpm lint</code></td>
+                  </tr>
+                  <tr>
+                    <th>Format check</th>
+                    <td><code>pnpm format</code></td>
+                  </tr>
+                  <tr>
+                    <th>Typecheck</th>
+                    <td><code>pnpm typecheck</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+          </div>
+        </section>
+
+        <section id="monorepo" class="doc-page" data-title="Monorepo">
+          <div class="section-heading">
+            <p class="eyebrow">Repository structure</p>
+            <h2>Monorepo layout</h2>
+            <p>
+              Workspace membership is declared in
+              <code>pnpm-workspace.yaml</code>. Turborepo coordinates build,
+              dev, lint, typecheck, and test tasks.
+            </p>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Role</th>
+                <th>Important notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>apps/studio</code></td>
+                <td>Primary CMS and site builder application</td>
+                <td>Next.js Pages Router, tRPC, Chakra, JSONForms, TipTap</td>
+              </tr>
+              <tr>
+                <td><code>packages/components</code></td>
+                <td>Published-site component and schema library</td>
+                <td>
+                  Exports renderer, schemas, interfaces, Tailwind presets,
+                  Storybook
+                </td>
+              </tr>
+              <tr>
+                <td><code>packages/db</code></td>
+                <td>Database schema and generated DB types</td>
+                <td>
+                  Prisma schema, migrations, Kysely generated types,
+                  <code>createDb</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>packages/pgboss</code></td>
+                <td>Background job wrapper</td>
+                <td>Shared pg-boss registration and shutdown helpers</td>
+              </tr>
+              <tr>
+                <td><code>packages/logging</code></td>
+                <td>Logging and tracing</td>
+                <td>Pino logger factory and Datadog tracer entrypoint</td>
+              </tr>
+              <tr>
+                <td><code>packages/validators</code></td>
+                <td>Small shared validation helpers</td>
+                <td>
+                  Includes safe inline-script serialization for published sites
+                </td>
+              </tr>
+              <tr>
+                <td><code>tooling/*</code></td>
+                <td>Shared configs, template, and operational scripts</td>
+                <td>
+                  TypeScript, Oxlint, Storybook, template builds, site launch
+                  tooling
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>Dependency direction:</strong> Studio consumes
+            <code>@isomer/db</code>, <code>@isomer/logging</code>,
+            <code>@isomer/pgboss</code>, and
+            <code>@opengovsg/isomer-components</code>. Components must not
+            import Studio internals.
+          </div>
+        </section>
+
+        <section id="studio" class="doc-page" data-title="Studio app">
+          <div class="section-heading">
+            <p class="eyebrow">Primary application</p>
+            <h2>Studio app architecture</h2>
+            <p>
+              <code>apps/studio</code> is a Next.js 16 application using the
+              Pages Router. Pages stay thin and delegate UI to vertical feature
+              modules.
+            </p>
+          </div>
+
+          <div class="cards three">
+            <article>
+              <h3>Entry points</h3>
+              <ul>
+                <li><code>src/pages/_app.tsx</code> wraps providers.</li>
+                <li><code>src/pages/api/trpc/[trpc].ts</code> exposes tRPC.</li>
+                <li>
+                  <code>src/server/context.ts</code> creates request context.
+                </li>
+                <li>
+                  <code>src/instrumentation.ts</code> starts tracing and jobs.
+                </li>
+              </ul>
+            </article>
+            <article>
+              <h3>UI and state</h3>
+              <ul>
+                <li>Chakra UI plus OGP design system for Studio.</li>
+                <li>React Query through tRPC hooks for server state.</li>
+                <li>Jotai and React Context for local editor UI state.</li>
+                <li>JSONForms and TipTap power the editing experience.</li>
+              </ul>
+            </article>
+            <article>
+              <h3>Server surface</h3>
+              <ul>
+                <li>
+                  Routers are defined in <code>src/server/modules/*</code>.
+                </li>
+                <li>Services hold business logic and permission checks.</li>
+                <li>Kysely is preferred for new database work.</li>
+                <li>
+                  Prisma still supports legacy and generated-client paths.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <h3>Key source directories</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Directory</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>src/pages</code></td>
+                <td>Next.js routes and API routes.</td>
+              </tr>
+              <tr>
+                <td><code>src/features</code></td>
+                <td>
+                  Vertical UI slices such as dashboard, editing, users,
+                  settings, permissions, sign-in, gazettes.
+                </td>
+              </tr>
+              <tr>
+                <td><code>src/server</code></td>
+                <td>tRPC, request context, server modules, cron jobs.</td>
+              </tr>
+              <tr>
+                <td><code>src/components</code></td>
+                <td>Shared Studio UI such as nav, wrappers, editor chrome.</td>
+              </tr>
+              <tr>
+                <td><code>src/schemas</code></td>
+                <td>Zod schemas for tRPC inputs and shared validation.</td>
+              </tr>
+              <tr>
+                <td><code>src/lib</code></td>
+                <td>
+                  S3, mail, logger, GrowthBook, form helpers, shared utilities.
+                </td>
+              </tr>
+              <tr>
+                <td><code>src/templates</code></td>
+                <td>
+                  Studio layout shells such as authenticated and editor layouts.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Major feature modules</h3>
+          <div class="pill-grid">
+            <span>sign-in</span>
+            <span>auth</span>
+            <span>dashboard</span>
+            <span>editing-experience</span>
+            <span>settings</span>
+            <span>users</span>
+            <span>permissions</span>
+            <span>gazettes</span>
+            <span>mail</span>
+          </div>
+        </section>
+
+        <section
+          id="request-lifecycle"
+          class="doc-page"
+          data-title="Request lifecycle"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Runtime path</p>
+            <h2>Request lifecycle</h2>
+          </div>
+
+          <ol class="timeline">
+            <li>
+              <h3>Route and layout</h3>
+              <p>
+                A file under <code>apps/studio/src/pages</code> maps to a route.
+                Most pages use a <code>getLayout</code> pattern and delegate
+                content to a feature component.
+              </p>
+            </li>
+            <li>
+              <h3>Feature module calls tRPC</h3>
+              <p>
+                Feature components call <code>trpc.*.useQuery</code>,
+                <code>useMutation</code>, or suspense hooks from
+                <code>src/utils/trpc.ts</code>.
+              </p>
+            </li>
+            <li>
+              <h3>API handler invokes app router</h3>
+              <p>
+                <code>pages/api/trpc/[trpc].ts</code> passes requests into
+                <code>appRouter</code>, with SuperJSON serialization and
+                batching controls configured in the tRPC handler/client.
+              </p>
+            </li>
+            <li>
+              <h3>Middleware applies cross-cutting concerns</h3>
+              <p>
+                <code>src/server/trpc.ts</code> applies GrowthBook cleanup,
+                request logging, app-version headers, content-type checks, auth,
+                webhook keys, and rate limits.
+              </p>
+            </li>
+            <li>
+              <h3>Router delegates to service</h3>
+              <p>
+                Routers wire validated input to service functions. Services
+                perform authorization and database work, often inside a
+                transaction with audit logging.
+              </p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="trpc-api" class="doc-page" data-title="tRPC API">
+          <div class="section-heading">
+            <p class="eyebrow">Server modules</p>
+            <h2>tRPC API surface</h2>
+            <p>
+              The root router lives at
+              <code>apps/studio/src/server/modules/_app.ts</code>.
+            </p>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Namespace</th>
+                <th>Router</th>
+                <th>Domain</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>healthcheck</code></td>
+                <td>inline</td>
+                <td>Liveness query returning <code>yay!</code>.</td>
+              </tr>
+              <tr>
+                <td><code>me</code></td>
+                <td><code>me.router.ts</code></td>
+                <td>Current user.</td>
+              </tr>
+              <tr>
+                <td><code>auth</code></td>
+                <td><code>auth.router.ts</code></td>
+                <td>Email OTP, Singpass, logout.</td>
+              </tr>
+              <tr>
+                <td><code>asset</code></td>
+                <td><code>asset.router.ts</code></td>
+                <td>S3 upload URLs and asset operations.</td>
+              </tr>
+              <tr>
+                <td><code>page</code></td>
+                <td><code>page.router.ts</code></td>
+                <td>Page CRUD, blob updates, publish, schedule.</td>
+              </tr>
+              <tr>
+                <td><code>folder</code></td>
+                <td><code>folder.router.ts</code></td>
+                <td>Folder lifecycle.</td>
+              </tr>
+              <tr>
+                <td><code>collection</code></td>
+                <td><code>collection.router.ts</code></td>
+                <td>Collections, collection pages, collection links.</td>
+              </tr>
+              <tr>
+                <td><code>gazette</code></td>
+                <td><code>gazette.router.ts</code></td>
+                <td>e-Gazette uploads and SearchSG indexing.</td>
+              </tr>
+              <tr>
+                <td><code>site</code></td>
+                <td><code>site.router.ts</code></td>
+                <td>Site config, theme, navbar, footer, redirects, publish.</td>
+              </tr>
+              <tr>
+                <td><code>resource</code></td>
+                <td><code>resource.router.ts</code></td>
+                <td>Tree navigation, search, move, delete, role lookup.</td>
+              </tr>
+              <tr>
+                <td><code>user</code></td>
+                <td><code>user.router.ts</code></td>
+                <td>User management and collaborator roles.</td>
+              </tr>
+              <tr>
+                <td><code>whitelist</code></td>
+                <td><code>whitelist.router.ts</code></td>
+                <td>Email allowlist administration.</td>
+              </tr>
+              <tr>
+                <td><code>webhook</code></td>
+                <td><code>webhook.router.ts</code></td>
+                <td>CodeBuild webhook callbacks.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="cards three">
+            <article>
+              <h3><code>publicProcedure</code></h3>
+              <p>
+                Requires a session object in context but not a signed-in user.
+                Intended for rare intentionally public endpoints.
+              </p>
+            </article>
+            <article>
+              <h3><code>protectedProcedure</code></h3>
+              <p>
+                Default for app data. Requires valid session, non-deleted user,
+                and whitelisted email.
+              </p>
+            </article>
+            <article>
+              <h3><code>webhookProcedure</code></h3>
+              <p>
+                Server-to-server endpoints protected by the
+                <code>x-api-key</code> header and timing-safe comparison.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="domain-model" class="doc-page" data-title="Domain model">
+          <div class="section-heading">
+            <p class="eyebrow">Product vocabulary</p>
+            <h2>Domain model</h2>
+            <p>
+              The editorial tenant boundary is <strong>Site</strong>. The term
+              workspace in this repo refers to pnpm/Turborepo workspaces, not a
+              product entity.
+            </p>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Core entities</h3>
+              <table>
+                <tbody>
+                  <tr>
+                    <th><code>Site</code></th>
+                    <td>
+                      Agency site, config, theme, navbar/footer, redirects,
+                      CodeBuild ID.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><code>Resource</code></th>
+                    <td>
+                      Unified content-tree node for pages, folders, collections,
+                      links, and index pages.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><code>Blob</code></th>
+                    <td>Draft or versioned JSON content payload.</td>
+                  </tr>
+                  <tr>
+                    <th><code>Version</code></th>
+                    <td>Immutable published snapshot for a resource.</td>
+                  </tr>
+                  <tr>
+                    <th><code>User</code></th>
+                    <td>
+                      Editor identity; supports soft delete and Singpass UUID.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><code>ResourcePermission</code></th>
+                    <td>User role scoped to site or resource.</td>
+                  </tr>
+                  <tr>
+                    <th><code>AuditLog</code></th>
+                    <td>
+                      Immutable log of auth, config, permission, and resource
+                      changes.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+            <article>
+              <h3>Resource tree</h3>
+              <pre><code>Site
+├─ RootPage (homepage, permalink "")
+├─ Page
+├─ Folder
+│  ├─ IndexPage (_index)
+│  ├─ Page
+│  └─ Collection
+│     ├─ IndexPage (collection layout)
+│     ├─ CollectionPage
+│     └─ CollectionLink
+└─ Page (search)</code></pre>
+              <p>
+                Resource uniqueness is scoped by site, parent, and permalink.
+                Legacy <code>FolderMeta</code> and <code>CollectionMeta</code>
+                rows still exist but are being superseded by index-page
+                ordering.
+              </p>
+            </article>
+          </div>
+
+          <h3>Important enums</h3>
+          <div class="pill-grid wide">
+            <span>ResourceState: Draft, Published</span>
+            <span
+              >ResourceType: RootPage, Page, Folder, Collection, CollectionPage,
+              CollectionLink, IndexPage, FolderMeta, CollectionMeta</span
+            >
+            <span>RoleType: Admin, Editor, Publisher</span>
+            <span>IsomerAdminRole: Core, Migrator</span>
+            <span
+              >BuildStatusType: IN_PROGRESS, SUCCEEDED, FAILED, STOPPED</span
+            >
+          </div>
+        </section>
+
+        <section
+          id="content-publishing"
+          class="doc-page"
+          data-title="Content and publishing"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Edit to deploy</p>
+            <h2>Content and publishing flow</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Content contract</h3>
+              <p>
+                Page content is JSON shaped by
+                <code>@opengovsg/isomer-components</code> schemas. Studio uses
+                JSONForms and AJV validation to edit and persist blobs.
+              </p>
+              <pre><code>{
+  "version": "0.1.0",
+  "layout": "content",
+  "page": { "...": "layout-specific metadata" },
+  "content": [{ "type": "paragraph", "...": "block props" }]
+}</code></pre>
+            </article>
+            <article>
+              <h3>Publishing semantics</h3>
+              <ul>
+                <li>Draft saves update <code>Resource.draftBlobId</code>.</li>
+                <li>
+                  Content publish copies draft JSON into a new
+                  <code>Version</code>.
+                </li>
+                <li>
+                  <code>Resource.publishedVersionId</code> points at the live
+                  snapshot.
+                </li>
+                <li>
+                  Site deploy triggers AWS CodeBuild when the site has a launch
+                  project.
+                </li>
+                <li>
+                  Scheduled publish is handled by a pg-boss cron job every
+                  minute.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <h3>Published-site build pipeline</h3>
+          <ol class="timeline compact">
+            <li>
+              <strong>Export:</strong>
+              <code>tooling/build/scripts/publishing/index.ts</code> queries the
+              DB for site content and writes JSON artifacts.
+            </li>
+            <li>
+              <strong>Prepare:</strong>
+              <code>tooling/build/scripts/publisher.sh</code> assembles the
+              template and exported data.
+            </li>
+            <li>
+              <strong>Render:</strong> <code>tooling/template</code> loads JSON
+              and uses <code>RenderEngine</code>.
+            </li>
+            <li>
+              <strong>Deploy:</strong> output is synced to S3 and CloudFront
+              origin paths/redirect objects are updated.
+            </li>
+          </ol>
+        </section>
+
+        <section
+          id="auth-permissions"
+          class="doc-page"
+          data-title="Auth and permissions"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Access control</p>
+            <h2>Authentication and permissions</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Authentication flow</h3>
+              <ul>
+                <li>Session storage uses <code>iron-session</code>.</li>
+                <li>
+                  Email OTP lives under <code>server/modules/auth/email</code>.
+                </li>
+                <li>
+                  Singpass OIDC lives under
+                  <code>server/modules/auth/singpass</code>.
+                </li>
+                <li>
+                  Soft-deleted users are rejected by
+                  <code>authMiddleware</code>.
+                </li>
+                <li>Whitelist checks gate access after user lookup.</li>
+              </ul>
+            </article>
+            <article>
+              <h3>Authorization model</h3>
+              <ul>
+                <li>
+                  CASL abilities map roles to resource/site/user-management
+                  actions.
+                </li>
+                <li>
+                  Roles are <code>Editor</code>, <code>Publisher</code>, and
+                  <code>Admin</code>.
+                </li>
+                <li>Site-level permissions are the common case today.</li>
+                <li>Isomer admins can receive admin-equivalent overrides.</li>
+                <li>
+                  Permission checks belong in service methods before mutation.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>File</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Session config</td>
+                <td><code>server/modules/auth/session.ts</code></td>
+                <td>Cookie name, TTL, session options.</td>
+              </tr>
+              <tr>
+                <td>Client login state</td>
+                <td><code>features/auth/LoginStateContext.tsx</code></td>
+                <td>UX redirect flag only; not security.</td>
+              </tr>
+              <tr>
+                <td>Procedure auth</td>
+                <td><code>server/trpc.ts</code></td>
+                <td>Real authentication and whitelist gate.</td>
+              </tr>
+              <tr>
+                <td>Permissions service</td>
+                <td><code>server/modules/permissions</code></td>
+                <td>CASL abilities and validation helpers.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section
+          id="assets-gazettes"
+          class="doc-page"
+          data-title="Assets and gazettes"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Files and specialized publishing</p>
+            <h2>Assets and gazettes</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Assets</h3>
+              <p>
+                Assets are not database rows. They are stored in S3 under keys
+                scoped by site and referenced by content JSON.
+              </p>
+              <ul>
+                <li><code>asset.router.ts</code> exposes upload endpoints.</li>
+                <li>
+                  <code>asset.service.ts</code> issues presigned PUT URLs.
+                </li>
+                <li>SVG upload is server-side sanitized before storing.</li>
+                <li>
+                  Soft delete uses S3 object tags such as
+                  <code>deletedAt</code>.
+                </li>
+              </ul>
+            </article>
+            <article>
+              <h3>Gazettes</h3>
+              <p>
+                e-Gazette is a specialized collection/PDF workflow with a
+                separate bucket and SearchSG document-ingestion job.
+              </p>
+              <ul>
+                <li>
+                  <code>gazette.router.ts</code> and
+                  <code>gazette.service.ts</code> own the workflow.
+                </li>
+                <li>
+                  Access is constrained to Toppan email domains or Core/Migrator
+                  admins.
+                </li>
+                <li><code>PushDocumentJob</code> tracks SearchSG indexing.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section
+          id="components-package"
+          class="doc-page"
+          data-title="Components package"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Published-site renderer</p>
+            <h2><code>@opengovsg/isomer-components</code></h2>
+            <p>
+              This package renders published Isomer sites. It owns templates,
+              page layouts, block components, JSON Schema, interfaces, render
+              engine utilities, Tailwind presets, and Storybook.
+            </p>
+          </div>
+
+          <div class="cards three">
+            <article>
+              <h3>Public exports</h3>
+              <ul>
+                <li>
+                  <code>.</code> exports engine, schemas, types, interfaces,
+                  presets, hooks, constants.
+                </li>
+                <li>
+                  <code>./templates/next</code> exports render helpers for Next
+                  template usage.
+                </li>
+                <li>Package output is ESM under <code>dist/esm</code>.</li>
+              </ul>
+            </article>
+            <article>
+              <h3>Template structure</h3>
+              <ul>
+                <li>
+                  <code>templates/next/components/native</code>: atomic content
+                  blocks.
+                </li>
+                <li>
+                  <code>templates/next/components/complex</code>: composed
+                  blocks.
+                </li>
+                <li>
+                  <code>templates/next/layouts</code>: page-shape templates.
+                </li>
+                <li>
+                  <code>templates/next/render</code>: layout/block dispatch.
+                </li>
+              </ul>
+            </article>
+            <article>
+              <h3>Development</h3>
+              <pre><code>cd packages/components
+pnpm build
+pnpm storybook
+pnpm test:unit
+pnpm typecheck</code></pre>
+            </article>
+          </div>
+
+          <div class="callout">
+            <strong>Boundary rule:</strong> Studio drives content and components
+            render content. Communication is through exported types/interfaces
+            and JSON Schema. Components must not call Studio APIs or import
+            Studio internals.
+          </div>
+        </section>
+
+        <section id="db-package" class="doc-page" data-title="Database package">
+          <div class="section-heading">
+            <p class="eyebrow">Data layer</p>
+            <h2><code>@isomer/db</code></h2>
+            <p>
+              The DB package owns the Prisma schema, migrations, generated
+              Kysely types, and a branded Kysely wrapper consumed by Studio and
+              build tooling.
+            </p>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>packages/db/prisma/schema.prisma</code></td>
+                <td>Canonical schema.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/prisma/migrations</code></td>
+                <td>Prisma migrations.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/prisma/custom</code></td>
+                <td>Custom SQL migrations.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/src/generated</code></td>
+                <td>Generated Kysely enums/types/selectable types.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/src/createDb.ts</code></td>
+                <td>Constructs Kysely DB connections.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/src/kysely.ts</code></td>
+                <td>Branded Kysely and transaction types.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code>cd packages/db
+pnpm generate
+pnpm migrate:dev
+pnpm migrate
+pnpm migrate:custom</code></pre>
+        </section>
+
+        <section
+          id="shared-packages"
+          class="doc-page"
+          data-title="Shared packages"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Runtime support</p>
+            <h2>Other shared packages</h2>
+          </div>
+
+          <div class="cards three">
+            <article>
+              <h3><code>@isomer/pgboss</code></h3>
+              <p>
+                Singleton pg-boss client and job registration helpers. Studio
+                cron jobs use it for scheduled publishing, SearchSG document
+                push, and account lifecycle jobs.
+              </p>
+            </article>
+            <article>
+              <h3><code>@isomer/logging</code></h3>
+              <p>
+                Pino logger factory and Datadog
+                <code>dd-trace</code> entrypoint. Used by Studio server and
+                pg-boss utilities.
+              </p>
+            </article>
+            <article>
+              <h3><code>@isomer/validators</code></h3>
+              <p>
+                Small shared helpers such as safe inline-script serialization,
+                used by published-site template and component flows.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="tooling" class="doc-page" data-title="Tooling">
+          <div class="section-heading">
+            <p class="eyebrow">Build and developer tools</p>
+            <h2>Tooling</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Package and task orchestration</h3>
+              <ul>
+                <li>
+                  <code>pnpm-workspace.yaml</code> defines workspaces and
+                  dependency catalogs.
+                </li>
+                <li>
+                  <code>package.json</code> root scripts run Turbo tasks, often
+                  wrapped by <code>dotenv</code>.
+                </li>
+                <li>
+                  <code>turbo.json</code> tracks global env vars and task
+                  dependencies.
+                </li>
+                <li>
+                  Workspace dependency consistency is checked by
+                  <code>sherif</code>.
+                </li>
+              </ul>
+            </article>
+            <article>
+              <h3>Code quality</h3>
+              <ul>
+                <li>
+                  Type checking uses <code>tsgo</code> from
+                  <code>@typescript/native-preview</code>.
+                </li>
+                <li>
+                  Linting uses Oxlint with shared config in
+                  <code>tooling/oxlint</code>.
+                </li>
+                <li>
+                  Formatting uses Oxfmt with import and Tailwind class sorting.
+                </li>
+                <li>
+                  Shared TS presets live in <code>tooling/typescript</code>.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <h3>Storybook</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Workspace</th>
+                <th>Port</th>
+                <th>Framework</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>packages/components</code></td>
+                <td>6006</td>
+                <td>React Vite</td>
+                <td>Published-site components and foundations.</td>
+              </tr>
+              <tr>
+                <td><code>apps/studio</code></td>
+                <td>6007</td>
+                <td>Next.js Storybook</td>
+                <td>CMS UI states and feature workflows.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="testing-ci" class="doc-page" data-title="Testing and CI">
+          <div class="section-heading">
+            <p class="eyebrow">Verification</p>
+            <h2>Testing and CI</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Test matrix</h3>
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Studio unit/integration</th>
+                    <td>Vitest, <code>apps/studio/vitest.config.ts</code></td>
+                  </tr>
+                  <tr>
+                    <th>Studio E2E</th>
+                    <td>Playwright, <code>apps/studio/tests/e2e</code></td>
+                  </tr>
+                  <tr>
+                    <th>Components unit</th>
+                    <td>Vitest, co-located tests.</td>
+                  </tr>
+                  <tr>
+                    <th>Visual regression</th>
+                    <td>Chromatic over Storybook builds.</td>
+                  </tr>
+                  <tr>
+                    <th>pg-boss</th>
+                    <td>
+                      Vitest with local Postgres on package docker compose.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+            <article>
+              <h3>Common verification commands</h3>
+              <pre><code>pnpm lint
+pnpm format
+pnpm typecheck
+cd apps/studio && pnpm test:unit
+cd packages/components && pnpm test:unit
+pnpm setup:test && pnpm test:e2e</code></pre>
+            </article>
+          </div>
+
+          <h3>GitHub workflows</h3>
+          <p>
+            Workflows under <code>.github/workflows</code> cover CI, Chromatic,
+            CodeQL, reusable AWS ECS deploy, and environment deploys for
+            staging, UAT, and production. The composite setup action installs
+            pnpm, Node 22, and the frozen lockfile.
+          </p>
+        </section>
+
+        <section
+          id="ops-integrations"
+          class="doc-page"
+          data-title="Ops and integrations"
+        >
+          <div class="section-heading">
+            <p class="eyebrow">Production-adjacent systems</p>
+            <h2>Ops and integrations</h2>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>Primary files</th>
+                <th>Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AWS S3</td>
+                <td>
+                  <code>src/lib/s3.ts</code>, <code>asset.service.ts</code>
+                </td>
+                <td>Assets, gazette PDFs, static site output.</td>
+              </tr>
+              <tr>
+                <td>AWS CodeBuild</td>
+                <td><code>server/modules/aws/codebuild.service.ts</code></td>
+                <td>Site rebuild and deployment triggers.</td>
+              </tr>
+              <tr>
+                <td>CloudFront</td>
+                <td><code>tooling/build/scripts/publisher.sh</code></td>
+                <td>Origin path swaps for published sites.</td>
+              </tr>
+              <tr>
+                <td>SearchSG</td>
+                <td><code>server/modules/searchsg</code></td>
+                <td>Search config and gazette document indexing.</td>
+              </tr>
+              <tr>
+                <td>Singpass / Mockpass</td>
+                <td>
+                  <code>server/modules/auth/singpass</code>,
+                  <code>docker-compose.yml</code>
+                </td>
+                <td>Step-up identity and local OIDC simulation.</td>
+              </tr>
+              <tr>
+                <td>GrowthBook</td>
+                <td><code>src/lib/growthbook.ts</code></td>
+                <td>Feature flags on client and server.</td>
+              </tr>
+              <tr>
+                <td>Datadog</td>
+                <td><code>@isomer/logging/tracer</code>, browser RUM</td>
+                <td>Tracing, logging, and RUM.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Background jobs</h3>
+          <div class="cards two">
+            <article>
+              <h3>Every minute</h3>
+              <ul>
+                <li>
+                  <code>schedule-publishing</code>: publish resources due at
+                  <code>scheduledAt</code>.
+                </li>
+                <li>
+                  <code>schedule-push-document</code>: push gazette PDFs to
+                  SearchSG.
+                </li>
+              </ul>
+            </article>
+            <article>
+              <h3>Daily lifecycle jobs</h3>
+              <ul>
+                <li><code>deactivate-inactive-users</code>.</li>
+                <li><code>send-account-deactivation-warning-emails</code>.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="conventions" class="doc-page" data-title="Conventions">
+          <div class="section-heading">
+            <p class="eyebrow">How to change the system safely</p>
+            <h2>Conventions</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Studio conventions</h3>
+              <ul>
+                <li>Pages are thin; real UI lives in feature modules.</li>
+                <li>Feature modules should not cross-import each other.</li>
+                <li>Routers should stay thin; services own business logic.</li>
+                <li>
+                  Input validation belongs in
+                  <code>apps/studio/src/schemas</code>.
+                </li>
+                <li>
+                  Permission checks and audit logging must happen in
+                  service-layer mutations.
+                </li>
+                <li>Use <code>useZodForm</code> for forms when applicable.</li>
+              </ul>
+            </article>
+            <article>
+              <h3>Package conventions</h3>
+              <ul>
+                <li>
+                  Prefer workspace/catalog dependency specifiers over raw
+                  versions.
+                </li>
+                <li>Components render; Studio produces content.</li>
+                <li>
+                  Schema additions in components must be backward compatible.
+                </li>
+                <li>
+                  Use <code>~/lib/tv</code> and
+                  <code>~/lib/twMerge</code> wrappers in components.
+                </li>
+                <li>New public components need Storybook coverage.</li>
+                <li>Kysely is preferred for new DB queries.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="risks" class="doc-page" data-title="Risks and sharp edges">
+          <div class="section-heading">
+            <p class="eyebrow">Read before editing hot paths</p>
+            <h2>Risks and sharp edges</h2>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Risk</th>
+                <th>Why it matters</th>
+                <th>Mitigation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Client login flag</td>
+                <td>
+                  LocalStorage only drives UX redirects and is bypassable.
+                </td>
+                <td>Never treat it as auth; use protected tRPC procedures.</td>
+              </tr>
+              <tr>
+                <td>Dual ORM</td>
+                <td>
+                  Kysely and Prisma coexist and can produce inconsistent
+                  patterns.
+                </td>
+                <td>
+                  Prefer one transaction owner per mutation; new code should
+                  favor Kysely.
+                </td>
+              </tr>
+              <tr>
+                <td>Schema compatibility</td>
+                <td>
+                  Components schema changes can affect every published site.
+                </td>
+                <td>
+                  Add optional fields first; coordinate Studio producer changes
+                  separately.
+                </td>
+              </tr>
+              <tr>
+                <td>Audit log integrity</td>
+                <td>Mutations without audit trail are operationally risky.</td>
+                <td>Log real DB rows in the same transaction as the write.</td>
+              </tr>
+              <tr>
+                <td>External-service calls</td>
+                <td>
+                  Email, S3, Singpass, SearchSG, CodeBuild can be abused or
+                  fail.
+                </td>
+                <td>
+                  Use procedure rate limits, generic errors, and structured
+                  logging.
+                </td>
+              </tr>
+              <tr>
+                <td>Build type safety</td>
+                <td>Next build can ignore TypeScript build errors.</td>
+                <td>
+                  Run <code>pnpm typecheck</code> in CI and before risky merges.
+                </td>
+              </tr>
+              <tr>
+                <td>Generated artifacts</td>
+                <td>DB clients and generated Kysely types can drift.</td>
+                <td>Run <code>pnpm generate</code> after schema changes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="file-index" class="doc-page" data-title="File index">
+          <div class="section-heading">
+            <p class="eyebrow">Where to start</p>
+            <h2>File index</h2>
+          </div>
+
+          <div class="cards two">
+            <article>
+              <h3>Architecture and runtime</h3>
+              <ul class="file-list">
+                <li><code>package.json</code> - root scripts and engines.</li>
+                <li>
+                  <code>pnpm-workspace.yaml</code> - workspace globs and
+                  catalogs.
+                </li>
+                <li><code>turbo.json</code> - task graph and tracked env.</li>
+                <li>
+                  <code>apps/studio/src/pages/_app.tsx</code> - app providers.
+                </li>
+                <li>
+                  <code>apps/studio/src/pages/api/trpc/[trpc].ts</code> - tRPC
+                  handler.
+                </li>
+                <li>
+                  <code>apps/studio/src/server/trpc.ts</code> - procedures and
+                  middleware.
+                </li>
+                <li>
+                  <code>apps/studio/src/server/modules/_app.ts</code> - root
+                  router.
+                </li>
+                <li>
+                  <code>apps/studio/src/utils/trpc.ts</code> - client hooks.
+                </li>
+              </ul>
+            </article>
+            <article>
+              <h3>Domains and packages</h3>
+              <ul class="file-list">
+                <li>
+                  <code>packages/db/prisma/schema.prisma</code> - canonical
+                  schema.
+                </li>
+                <li>
+                  <code
+                    >apps/studio/src/server/modules/resource/resource.service.ts</code
+                  >
+                  - content tree.
+                </li>
+                <li>
+                  <code
+                    >apps/studio/src/server/modules/page/page.service.ts</code
+                  >
+                  - page lifecycle.
+                </li>
+                <li>
+                  <code
+                    >apps/studio/src/server/modules/site/site.service.ts</code
+                  >
+                  - site config.
+                </li>
+                <li>
+                  <code>apps/studio/src/server/modules/permissions</code> - CASL
+                  abilities.
+                </li>
+                <li>
+                  <code>packages/components/src/schemas/main.ts</code> -
+                  published content schema.
+                </li>
+                <li>
+                  <code>packages/components/src/templates/next</code> -
+                  published-site renderer.
+                </li>
+                <li>
+                  <code>tooling/template/app/[[...permalink]]/page.tsx</code> -
+                  static route renderer.
+                </li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <p>
+            Static wiki source:
+            <code>docs/technical-wiki/index.html</code>. Keep this document in
+            sync when changing architecture, package boundaries, or development
+            workflows.
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <script src="./wiki.js" defer></script>
+  </body>
+</html>
