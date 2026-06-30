@@ -130,32 +130,48 @@
             <article role="listitem">
               <span>1</span>
               <h3>Editor signs in</h3>
-              <p>Email OTP and optional Singpass flows create an iron-session.</p>
+              <p>
+                Email OTP and optional Singpass flows create an iron-session.
+              </p>
             </article>
             <article role="listitem">
               <span>2</span>
               <h3>Studio loads site</h3>
-              <p>Pages call feature modules, which use tRPC React Query hooks.</p>
+              <p>
+                Pages call feature modules, which use tRPC React Query hooks.
+              </p>
             </article>
             <article role="listitem">
               <span>3</span>
               <h3>Routers call services</h3>
-              <p>tRPC procedures enforce auth, rate limits, logging, and input schemas.</p>
+              <p>
+                tRPC procedures enforce auth, rate limits, logging, and input
+                schemas.
+              </p>
             </article>
             <article role="listitem">
               <span>4</span>
               <h3>Services mutate data</h3>
-              <p>Kysely/Prisma write resources, blobs, versions, permissions, and audit logs.</p>
+              <p>
+                Kysely/Prisma write resources, blobs, versions, permissions, and
+                audit logs.
+              </p>
             </article>
             <article role="listitem">
               <span>5</span>
               <h3>Publish triggers build</h3>
-              <p>Content publish creates a Version; site deploy triggers AWS CodeBuild.</p>
+              <p>
+                Content publish creates a Version; site deploy triggers AWS
+                CodeBuild.
+              </p>
             </article>
             <article role="listitem">
               <span>6</span>
               <h3>Template renders static site</h3>
-              <p>Build scripts export JSON and the template renders with isomer-components.</p>
+              <p>
+                Build scripts export JSON and the template renders with
+                isomer-components.
+              </p>
             </article>
           </div>
 
@@ -204,12 +220,30 @@ pnpm dev</code></pre>
               <h3>Everyday commands</h3>
               <table>
                 <tbody>
-                  <tr><th>Run app</th><td><code>pnpm dev</code></td></tr>
-                  <tr><th>Storybook</th><td><code>pnpm storybook</code></td></tr>
-                  <tr><th>Packages watch</th><td><code>pnpm watch:packages</code></td></tr>
-                  <tr><th>Lint</th><td><code>pnpm lint</code></td></tr>
-                  <tr><th>Format check</th><td><code>pnpm format</code></td></tr>
-                  <tr><th>Typecheck</th><td><code>pnpm typecheck</code></td></tr>
+                  <tr>
+                    <th>Run app</th>
+                    <td><code>pnpm dev</code></td>
+                  </tr>
+                  <tr>
+                    <th>Storybook</th>
+                    <td><code>pnpm storybook</code></td>
+                  </tr>
+                  <tr>
+                    <th>Packages watch</th>
+                    <td><code>pnpm watch:packages</code></td>
+                  </tr>
+                  <tr>
+                    <th>Lint</th>
+                    <td><code>pnpm lint</code></td>
+                  </tr>
+                  <tr>
+                    <th>Format check</th>
+                    <td><code>pnpm format</code></td>
+                  </tr>
+                  <tr>
+                    <th>Typecheck</th>
+                    <td><code>pnpm typecheck</code></td>
+                  </tr>
                 </tbody>
               </table>
             </article>
@@ -221,8 +255,9 @@ pnpm dev</code></pre>
             <p class="eyebrow">Repository structure</p>
             <h2>Monorepo layout</h2>
             <p>
-              Workspace membership is declared in <code>pnpm-workspace.yaml</code>.
-              Turborepo coordinates build, dev, lint, typecheck, and test tasks.
+              Workspace membership is declared in
+              <code>pnpm-workspace.yaml</code>. Turborepo coordinates build,
+              dev, lint, typecheck, and test tasks.
             </p>
           </div>
 
@@ -243,12 +278,18 @@ pnpm dev</code></pre>
               <tr>
                 <td><code>packages/components</code></td>
                 <td>Published-site component and schema library</td>
-                <td>Exports renderer, schemas, interfaces, Tailwind presets, Storybook</td>
+                <td>
+                  Exports renderer, schemas, interfaces, Tailwind presets,
+                  Storybook
+                </td>
               </tr>
               <tr>
                 <td><code>packages/db</code></td>
                 <td>Database schema and generated DB types</td>
-                <td>Prisma schema, migrations, Kysely generated types, <code>createDb</code></td>
+                <td>
+                  Prisma schema, migrations, Kysely generated types,
+                  <code>createDb</code>
+                </td>
               </tr>
               <tr>
                 <td><code>packages/pgboss</code></td>
@@ -263,12 +304,17 @@ pnpm dev</code></pre>
               <tr>
                 <td><code>packages/validators</code></td>
                 <td>Small shared validation helpers</td>
-                <td>Includes safe inline-script serialization for published sites</td>
+                <td>
+                  Includes safe inline-script serialization for published sites
+                </td>
               </tr>
               <tr>
                 <td><code>tooling/*</code></td>
                 <td>Shared configs, template, and operational scripts</td>
-                <td>TypeScript, Oxlint, Storybook, template builds, site launch tooling</td>
+                <td>
+                  TypeScript, Oxlint, Storybook, template builds, site launch
+                  tooling
+                </td>
               </tr>
             </tbody>
           </table>
@@ -299,8 +345,12 @@ pnpm dev</code></pre>
               <ul>
                 <li><code>src/pages/_app.tsx</code> wraps providers.</li>
                 <li><code>src/pages/api/trpc/[trpc].ts</code> exposes tRPC.</li>
-                <li><code>src/server/context.ts</code> creates request context.</li>
-                <li><code>src/instrumentation.ts</code> starts tracing and jobs.</li>
+                <li>
+                  <code>src/server/context.ts</code> creates request context.
+                </li>
+                <li>
+                  <code>src/instrumentation.ts</code> starts tracing and jobs.
+                </li>
               </ul>
             </article>
             <article>
@@ -315,10 +365,14 @@ pnpm dev</code></pre>
             <article>
               <h3>Server surface</h3>
               <ul>
-                <li>Routers are defined in <code>src/server/modules/*</code>.</li>
+                <li>
+                  Routers are defined in <code>src/server/modules/*</code>.
+                </li>
                 <li>Services hold business logic and permission checks.</li>
                 <li>Kysely is preferred for new database work.</li>
-                <li>Prisma still supports legacy and generated-client paths.</li>
+                <li>
+                  Prisma still supports legacy and generated-client paths.
+                </li>
               </ul>
             </article>
           </div>
@@ -326,16 +380,47 @@ pnpm dev</code></pre>
           <h3>Key source directories</h3>
           <table>
             <thead>
-              <tr><th>Directory</th><th>Purpose</th></tr>
+              <tr>
+                <th>Directory</th>
+                <th>Purpose</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td><code>src/pages</code></td><td>Next.js routes and API routes.</td></tr>
-              <tr><td><code>src/features</code></td><td>Vertical UI slices such as dashboard, editing, users, settings, permissions, sign-in, gazettes.</td></tr>
-              <tr><td><code>src/server</code></td><td>tRPC, request context, server modules, cron jobs.</td></tr>
-              <tr><td><code>src/components</code></td><td>Shared Studio UI such as nav, wrappers, editor chrome.</td></tr>
-              <tr><td><code>src/schemas</code></td><td>Zod schemas for tRPC inputs and shared validation.</td></tr>
-              <tr><td><code>src/lib</code></td><td>S3, mail, logger, GrowthBook, form helpers, shared utilities.</td></tr>
-              <tr><td><code>src/templates</code></td><td>Studio layout shells such as authenticated and editor layouts.</td></tr>
+              <tr>
+                <td><code>src/pages</code></td>
+                <td>Next.js routes and API routes.</td>
+              </tr>
+              <tr>
+                <td><code>src/features</code></td>
+                <td>
+                  Vertical UI slices such as dashboard, editing, users,
+                  settings, permissions, sign-in, gazettes.
+                </td>
+              </tr>
+              <tr>
+                <td><code>src/server</code></td>
+                <td>tRPC, request context, server modules, cron jobs.</td>
+              </tr>
+              <tr>
+                <td><code>src/components</code></td>
+                <td>Shared Studio UI such as nav, wrappers, editor chrome.</td>
+              </tr>
+              <tr>
+                <td><code>src/schemas</code></td>
+                <td>Zod schemas for tRPC inputs and shared validation.</td>
+              </tr>
+              <tr>
+                <td><code>src/lib</code></td>
+                <td>
+                  S3, mail, logger, GrowthBook, form helpers, shared utilities.
+                </td>
+              </tr>
+              <tr>
+                <td><code>src/templates</code></td>
+                <td>
+                  Studio layout shells such as authenticated and editor layouts.
+                </td>
+              </tr>
             </tbody>
           </table>
 
@@ -384,8 +469,8 @@ pnpm dev</code></pre>
               <h3>API handler invokes app router</h3>
               <p>
                 <code>pages/api/trpc/[trpc].ts</code> passes requests into
-                <code>appRouter</code>, with SuperJSON serialization and batching
-                controls configured in the tRPC handler/client.
+                <code>appRouter</code>, with SuperJSON serialization and
+                batching controls configured in the tRPC handler/client.
               </p>
             </li>
             <li>
@@ -419,22 +504,78 @@ pnpm dev</code></pre>
 
           <table>
             <thead>
-              <tr><th>Namespace</th><th>Router</th><th>Domain</th></tr>
+              <tr>
+                <th>Namespace</th>
+                <th>Router</th>
+                <th>Domain</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td><code>healthcheck</code></td><td>inline</td><td>Liveness query returning <code>yay!</code>.</td></tr>
-              <tr><td><code>me</code></td><td><code>me.router.ts</code></td><td>Current user.</td></tr>
-              <tr><td><code>auth</code></td><td><code>auth.router.ts</code></td><td>Email OTP, Singpass, logout.</td></tr>
-              <tr><td><code>asset</code></td><td><code>asset.router.ts</code></td><td>S3 upload URLs and asset operations.</td></tr>
-              <tr><td><code>page</code></td><td><code>page.router.ts</code></td><td>Page CRUD, blob updates, publish, schedule.</td></tr>
-              <tr><td><code>folder</code></td><td><code>folder.router.ts</code></td><td>Folder lifecycle.</td></tr>
-              <tr><td><code>collection</code></td><td><code>collection.router.ts</code></td><td>Collections, collection pages, collection links.</td></tr>
-              <tr><td><code>gazette</code></td><td><code>gazette.router.ts</code></td><td>e-Gazette uploads and SearchSG indexing.</td></tr>
-              <tr><td><code>site</code></td><td><code>site.router.ts</code></td><td>Site config, theme, navbar, footer, redirects, publish.</td></tr>
-              <tr><td><code>resource</code></td><td><code>resource.router.ts</code></td><td>Tree navigation, search, move, delete, role lookup.</td></tr>
-              <tr><td><code>user</code></td><td><code>user.router.ts</code></td><td>User management and collaborator roles.</td></tr>
-              <tr><td><code>whitelist</code></td><td><code>whitelist.router.ts</code></td><td>Email allowlist administration.</td></tr>
-              <tr><td><code>webhook</code></td><td><code>webhook.router.ts</code></td><td>CodeBuild webhook callbacks.</td></tr>
+              <tr>
+                <td><code>healthcheck</code></td>
+                <td>inline</td>
+                <td>Liveness query returning <code>yay!</code>.</td>
+              </tr>
+              <tr>
+                <td><code>me</code></td>
+                <td><code>me.router.ts</code></td>
+                <td>Current user.</td>
+              </tr>
+              <tr>
+                <td><code>auth</code></td>
+                <td><code>auth.router.ts</code></td>
+                <td>Email OTP, Singpass, logout.</td>
+              </tr>
+              <tr>
+                <td><code>asset</code></td>
+                <td><code>asset.router.ts</code></td>
+                <td>S3 upload URLs and asset operations.</td>
+              </tr>
+              <tr>
+                <td><code>page</code></td>
+                <td><code>page.router.ts</code></td>
+                <td>Page CRUD, blob updates, publish, schedule.</td>
+              </tr>
+              <tr>
+                <td><code>folder</code></td>
+                <td><code>folder.router.ts</code></td>
+                <td>Folder lifecycle.</td>
+              </tr>
+              <tr>
+                <td><code>collection</code></td>
+                <td><code>collection.router.ts</code></td>
+                <td>Collections, collection pages, collection links.</td>
+              </tr>
+              <tr>
+                <td><code>gazette</code></td>
+                <td><code>gazette.router.ts</code></td>
+                <td>e-Gazette uploads and SearchSG indexing.</td>
+              </tr>
+              <tr>
+                <td><code>site</code></td>
+                <td><code>site.router.ts</code></td>
+                <td>Site config, theme, navbar, footer, redirects, publish.</td>
+              </tr>
+              <tr>
+                <td><code>resource</code></td>
+                <td><code>resource.router.ts</code></td>
+                <td>Tree navigation, search, move, delete, role lookup.</td>
+              </tr>
+              <tr>
+                <td><code>user</code></td>
+                <td><code>user.router.ts</code></td>
+                <td>User management and collaborator roles.</td>
+              </tr>
+              <tr>
+                <td><code>whitelist</code></td>
+                <td><code>whitelist.router.ts</code></td>
+                <td>Email allowlist administration.</td>
+              </tr>
+              <tr>
+                <td><code>webhook</code></td>
+                <td><code>webhook.router.ts</code></td>
+                <td>CodeBuild webhook callbacks.</td>
+              </tr>
             </tbody>
           </table>
 
@@ -479,13 +620,45 @@ pnpm dev</code></pre>
               <h3>Core entities</h3>
               <table>
                 <tbody>
-                  <tr><th><code>Site</code></th><td>Agency site, config, theme, navbar/footer, redirects, CodeBuild ID.</td></tr>
-                  <tr><th><code>Resource</code></th><td>Unified content-tree node for pages, folders, collections, links, and index pages.</td></tr>
-                  <tr><th><code>Blob</code></th><td>Draft or versioned JSON content payload.</td></tr>
-                  <tr><th><code>Version</code></th><td>Immutable published snapshot for a resource.</td></tr>
-                  <tr><th><code>User</code></th><td>Editor identity; supports soft delete and Singpass UUID.</td></tr>
-                  <tr><th><code>ResourcePermission</code></th><td>User role scoped to site or resource.</td></tr>
-                  <tr><th><code>AuditLog</code></th><td>Immutable log of auth, config, permission, and resource changes.</td></tr>
+                  <tr>
+                    <th><code>Site</code></th>
+                    <td>
+                      Agency site, config, theme, navbar/footer, redirects,
+                      CodeBuild ID.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><code>Resource</code></th>
+                    <td>
+                      Unified content-tree node for pages, folders, collections,
+                      links, and index pages.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><code>Blob</code></th>
+                    <td>Draft or versioned JSON content payload.</td>
+                  </tr>
+                  <tr>
+                    <th><code>Version</code></th>
+                    <td>Immutable published snapshot for a resource.</td>
+                  </tr>
+                  <tr>
+                    <th><code>User</code></th>
+                    <td>
+                      Editor identity; supports soft delete and Singpass UUID.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><code>ResourcePermission</code></th>
+                    <td>User role scoped to site or resource.</td>
+                  </tr>
+                  <tr>
+                    <th><code>AuditLog</code></th>
+                    <td>
+                      Immutable log of auth, config, permission, and resource
+                      changes.
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </article>
@@ -505,7 +678,8 @@ pnpm dev</code></pre>
               <p>
                 Resource uniqueness is scoped by site, parent, and permalink.
                 Legacy <code>FolderMeta</code> and <code>CollectionMeta</code>
-                rows still exist but are being superseded by index-page ordering.
+                rows still exist but are being superseded by index-page
+                ordering.
               </p>
             </article>
           </div>
@@ -513,10 +687,15 @@ pnpm dev</code></pre>
           <h3>Important enums</h3>
           <div class="pill-grid wide">
             <span>ResourceState: Draft, Published</span>
-            <span>ResourceType: RootPage, Page, Folder, Collection, CollectionPage, CollectionLink, IndexPage, FolderMeta, CollectionMeta</span>
+            <span
+              >ResourceType: RootPage, Page, Folder, Collection, CollectionPage,
+              CollectionLink, IndexPage, FolderMeta, CollectionMeta</span
+            >
             <span>RoleType: Admin, Editor, Publisher</span>
             <span>IsomerAdminRole: Core, Migrator</span>
-            <span>BuildStatusType: IN_PROGRESS, SUCCEEDED, FAILED, STOPPED</span>
+            <span
+              >BuildStatusType: IN_PROGRESS, SUCCEEDED, FAILED, STOPPED</span
+            >
           </div>
         </section>
 
@@ -549,20 +728,46 @@ pnpm dev</code></pre>
               <h3>Publishing semantics</h3>
               <ul>
                 <li>Draft saves update <code>Resource.draftBlobId</code>.</li>
-                <li>Content publish copies draft JSON into a new <code>Version</code>.</li>
-                <li><code>Resource.publishedVersionId</code> points at the live snapshot.</li>
-                <li>Site deploy triggers AWS CodeBuild when the site has a launch project.</li>
-                <li>Scheduled publish is handled by a pg-boss cron job every minute.</li>
+                <li>
+                  Content publish copies draft JSON into a new
+                  <code>Version</code>.
+                </li>
+                <li>
+                  <code>Resource.publishedVersionId</code> points at the live
+                  snapshot.
+                </li>
+                <li>
+                  Site deploy triggers AWS CodeBuild when the site has a launch
+                  project.
+                </li>
+                <li>
+                  Scheduled publish is handled by a pg-boss cron job every
+                  minute.
+                </li>
               </ul>
             </article>
           </div>
 
           <h3>Published-site build pipeline</h3>
           <ol class="timeline compact">
-            <li><strong>Export:</strong> <code>tooling/build/scripts/publishing/index.ts</code> queries the DB for site content and writes JSON artifacts.</li>
-            <li><strong>Prepare:</strong> <code>tooling/build/scripts/publisher.sh</code> assembles the template and exported data.</li>
-            <li><strong>Render:</strong> <code>tooling/template</code> loads JSON and uses <code>RenderEngine</code>.</li>
-            <li><strong>Deploy:</strong> output is synced to S3 and CloudFront origin paths/redirect objects are updated.</li>
+            <li>
+              <strong>Export:</strong>
+              <code>tooling/build/scripts/publishing/index.ts</code> queries the
+              DB for site content and writes JSON artifacts.
+            </li>
+            <li>
+              <strong>Prepare:</strong>
+              <code>tooling/build/scripts/publisher.sh</code> assembles the
+              template and exported data.
+            </li>
+            <li>
+              <strong>Render:</strong> <code>tooling/template</code> loads JSON
+              and uses <code>RenderEngine</code>.
+            </li>
+            <li>
+              <strong>Deploy:</strong> output is synced to S3 and CloudFront
+              origin paths/redirect objects are updated.
+            </li>
           </ol>
         </section>
 
@@ -581,33 +786,69 @@ pnpm dev</code></pre>
               <h3>Authentication flow</h3>
               <ul>
                 <li>Session storage uses <code>iron-session</code>.</li>
-                <li>Email OTP lives under <code>server/modules/auth/email</code>.</li>
-                <li>Singpass OIDC lives under <code>server/modules/auth/singpass</code>.</li>
-                <li>Soft-deleted users are rejected by <code>authMiddleware</code>.</li>
+                <li>
+                  Email OTP lives under <code>server/modules/auth/email</code>.
+                </li>
+                <li>
+                  Singpass OIDC lives under
+                  <code>server/modules/auth/singpass</code>.
+                </li>
+                <li>
+                  Soft-deleted users are rejected by
+                  <code>authMiddleware</code>.
+                </li>
                 <li>Whitelist checks gate access after user lookup.</li>
               </ul>
             </article>
             <article>
               <h3>Authorization model</h3>
               <ul>
-                <li>CASL abilities map roles to resource/site/user-management actions.</li>
-                <li>Roles are <code>Editor</code>, <code>Publisher</code>, and <code>Admin</code>.</li>
+                <li>
+                  CASL abilities map roles to resource/site/user-management
+                  actions.
+                </li>
+                <li>
+                  Roles are <code>Editor</code>, <code>Publisher</code>, and
+                  <code>Admin</code>.
+                </li>
                 <li>Site-level permissions are the common case today.</li>
                 <li>Isomer admins can receive admin-equivalent overrides.</li>
-                <li>Permission checks belong in service methods before mutation.</li>
+                <li>
+                  Permission checks belong in service methods before mutation.
+                </li>
               </ul>
             </article>
           </div>
 
           <table>
             <thead>
-              <tr><th>Layer</th><th>File</th><th>Purpose</th></tr>
+              <tr>
+                <th>Layer</th>
+                <th>File</th>
+                <th>Purpose</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td>Session config</td><td><code>server/modules/auth/session.ts</code></td><td>Cookie name, TTL, session options.</td></tr>
-              <tr><td>Client login state</td><td><code>features/auth/LoginStateContext.tsx</code></td><td>UX redirect flag only; not security.</td></tr>
-              <tr><td>Procedure auth</td><td><code>server/trpc.ts</code></td><td>Real authentication and whitelist gate.</td></tr>
-              <tr><td>Permissions service</td><td><code>server/modules/permissions</code></td><td>CASL abilities and validation helpers.</td></tr>
+              <tr>
+                <td>Session config</td>
+                <td><code>server/modules/auth/session.ts</code></td>
+                <td>Cookie name, TTL, session options.</td>
+              </tr>
+              <tr>
+                <td>Client login state</td>
+                <td><code>features/auth/LoginStateContext.tsx</code></td>
+                <td>UX redirect flag only; not security.</td>
+              </tr>
+              <tr>
+                <td>Procedure auth</td>
+                <td><code>server/trpc.ts</code></td>
+                <td>Real authentication and whitelist gate.</td>
+              </tr>
+              <tr>
+                <td>Permissions service</td>
+                <td><code>server/modules/permissions</code></td>
+                <td>CASL abilities and validation helpers.</td>
+              </tr>
             </tbody>
           </table>
         </section>
@@ -631,9 +872,14 @@ pnpm dev</code></pre>
               </p>
               <ul>
                 <li><code>asset.router.ts</code> exposes upload endpoints.</li>
-                <li><code>asset.service.ts</code> issues presigned PUT URLs.</li>
+                <li>
+                  <code>asset.service.ts</code> issues presigned PUT URLs.
+                </li>
                 <li>SVG upload is server-side sanitized before storing.</li>
-                <li>Soft delete uses S3 object tags such as <code>deletedAt</code>.</li>
+                <li>
+                  Soft delete uses S3 object tags such as
+                  <code>deletedAt</code>.
+                </li>
               </ul>
             </article>
             <article>
@@ -643,8 +889,14 @@ pnpm dev</code></pre>
                 separate bucket and SearchSG document-ingestion job.
               </p>
               <ul>
-                <li><code>gazette.router.ts</code> and <code>gazette.service.ts</code> own the workflow.</li>
-                <li>Access is constrained to Toppan email domains or Core/Migrator admins.</li>
+                <li>
+                  <code>gazette.router.ts</code> and
+                  <code>gazette.service.ts</code> own the workflow.
+                </li>
+                <li>
+                  Access is constrained to Toppan email domains or Core/Migrator
+                  admins.
+                </li>
                 <li><code>PushDocumentJob</code> tracks SearchSG indexing.</li>
               </ul>
             </article>
@@ -670,18 +922,34 @@ pnpm dev</code></pre>
             <article>
               <h3>Public exports</h3>
               <ul>
-                <li><code>.</code> exports engine, schemas, types, interfaces, presets, hooks, constants.</li>
-                <li><code>./templates/next</code> exports render helpers for Next template usage.</li>
+                <li>
+                  <code>.</code> exports engine, schemas, types, interfaces,
+                  presets, hooks, constants.
+                </li>
+                <li>
+                  <code>./templates/next</code> exports render helpers for Next
+                  template usage.
+                </li>
                 <li>Package output is ESM under <code>dist/esm</code>.</li>
               </ul>
             </article>
             <article>
               <h3>Template structure</h3>
               <ul>
-                <li><code>templates/next/components/native</code>: atomic content blocks.</li>
-                <li><code>templates/next/components/complex</code>: composed blocks.</li>
-                <li><code>templates/next/layouts</code>: page-shape templates.</li>
-                <li><code>templates/next/render</code>: layout/block dispatch.</li>
+                <li>
+                  <code>templates/next/components/native</code>: atomic content
+                  blocks.
+                </li>
+                <li>
+                  <code>templates/next/components/complex</code>: composed
+                  blocks.
+                </li>
+                <li>
+                  <code>templates/next/layouts</code>: page-shape templates.
+                </li>
+                <li>
+                  <code>templates/next/render</code>: layout/block dispatch.
+                </li>
               </ul>
             </article>
             <article>
@@ -715,15 +983,36 @@ pnpm typecheck</code></pre>
 
           <table>
             <thead>
-              <tr><th>Path</th><th>Purpose</th></tr>
+              <tr>
+                <th>Path</th>
+                <th>Purpose</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td><code>packages/db/prisma/schema.prisma</code></td><td>Canonical schema.</td></tr>
-              <tr><td><code>packages/db/prisma/migrations</code></td><td>Prisma migrations.</td></tr>
-              <tr><td><code>packages/db/prisma/custom</code></td><td>Custom SQL migrations.</td></tr>
-              <tr><td><code>packages/db/src/generated</code></td><td>Generated Kysely enums/types/selectable types.</td></tr>
-              <tr><td><code>packages/db/src/createDb.ts</code></td><td>Constructs Kysely DB connections.</td></tr>
-              <tr><td><code>packages/db/src/kysely.ts</code></td><td>Branded Kysely and transaction types.</td></tr>
+              <tr>
+                <td><code>packages/db/prisma/schema.prisma</code></td>
+                <td>Canonical schema.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/prisma/migrations</code></td>
+                <td>Prisma migrations.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/prisma/custom</code></td>
+                <td>Custom SQL migrations.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/src/generated</code></td>
+                <td>Generated Kysely enums/types/selectable types.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/src/createDb.ts</code></td>
+                <td>Constructs Kysely DB connections.</td>
+              </tr>
+              <tr>
+                <td><code>packages/db/src/kysely.ts</code></td>
+                <td>Branded Kysely and transaction types.</td>
+              </tr>
             </tbody>
           </table>
 
@@ -756,8 +1045,9 @@ pnpm migrate:custom</code></pre>
             <article>
               <h3><code>@isomer/logging</code></h3>
               <p>
-                Pino logger factory and Datadog <code>dd-trace</code> entrypoint.
-                Used by Studio server and pg-boss utilities.
+                Pino logger factory and Datadog
+                <code>dd-trace</code> entrypoint. Used by Studio server and
+                pg-boss utilities.
               </p>
             </article>
             <article>
@@ -780,19 +1070,41 @@ pnpm migrate:custom</code></pre>
             <article>
               <h3>Package and task orchestration</h3>
               <ul>
-                <li><code>pnpm-workspace.yaml</code> defines workspaces and dependency catalogs.</li>
-                <li><code>package.json</code> root scripts run Turbo tasks, often wrapped by <code>dotenv</code>.</li>
-                <li><code>turbo.json</code> tracks global env vars and task dependencies.</li>
-                <li>Workspace dependency consistency is checked by <code>sherif</code>.</li>
+                <li>
+                  <code>pnpm-workspace.yaml</code> defines workspaces and
+                  dependency catalogs.
+                </li>
+                <li>
+                  <code>package.json</code> root scripts run Turbo tasks, often
+                  wrapped by <code>dotenv</code>.
+                </li>
+                <li>
+                  <code>turbo.json</code> tracks global env vars and task
+                  dependencies.
+                </li>
+                <li>
+                  Workspace dependency consistency is checked by
+                  <code>sherif</code>.
+                </li>
               </ul>
             </article>
             <article>
               <h3>Code quality</h3>
               <ul>
-                <li>Type checking uses <code>tsgo</code> from <code>@typescript/native-preview</code>.</li>
-                <li>Linting uses Oxlint with shared config in <code>tooling/oxlint</code>.</li>
-                <li>Formatting uses Oxfmt with import and Tailwind class sorting.</li>
-                <li>Shared TS presets live in <code>tooling/typescript</code>.</li>
+                <li>
+                  Type checking uses <code>tsgo</code> from
+                  <code>@typescript/native-preview</code>.
+                </li>
+                <li>
+                  Linting uses Oxlint with shared config in
+                  <code>tooling/oxlint</code>.
+                </li>
+                <li>
+                  Formatting uses Oxfmt with import and Tailwind class sorting.
+                </li>
+                <li>
+                  Shared TS presets live in <code>tooling/typescript</code>.
+                </li>
               </ul>
             </article>
           </div>
@@ -800,11 +1112,26 @@ pnpm migrate:custom</code></pre>
           <h3>Storybook</h3>
           <table>
             <thead>
-              <tr><th>Workspace</th><th>Port</th><th>Framework</th><th>Purpose</th></tr>
+              <tr>
+                <th>Workspace</th>
+                <th>Port</th>
+                <th>Framework</th>
+                <th>Purpose</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td><code>packages/components</code></td><td>6006</td><td>React Vite</td><td>Published-site components and foundations.</td></tr>
-              <tr><td><code>apps/studio</code></td><td>6007</td><td>Next.js Storybook</td><td>CMS UI states and feature workflows.</td></tr>
+              <tr>
+                <td><code>packages/components</code></td>
+                <td>6006</td>
+                <td>React Vite</td>
+                <td>Published-site components and foundations.</td>
+              </tr>
+              <tr>
+                <td><code>apps/studio</code></td>
+                <td>6007</td>
+                <td>Next.js Storybook</td>
+                <td>CMS UI states and feature workflows.</td>
+              </tr>
             </tbody>
           </table>
         </section>
@@ -820,11 +1147,28 @@ pnpm migrate:custom</code></pre>
               <h3>Test matrix</h3>
               <table>
                 <tbody>
-                  <tr><th>Studio unit/integration</th><td>Vitest, <code>apps/studio/vitest.config.ts</code></td></tr>
-                  <tr><th>Studio E2E</th><td>Playwright, <code>apps/studio/tests/e2e</code></td></tr>
-                  <tr><th>Components unit</th><td>Vitest, co-located tests.</td></tr>
-                  <tr><th>Visual regression</th><td>Chromatic over Storybook builds.</td></tr>
-                  <tr><th>pg-boss</th><td>Vitest with local Postgres on package docker compose.</td></tr>
+                  <tr>
+                    <th>Studio unit/integration</th>
+                    <td>Vitest, <code>apps/studio/vitest.config.ts</code></td>
+                  </tr>
+                  <tr>
+                    <th>Studio E2E</th>
+                    <td>Playwright, <code>apps/studio/tests/e2e</code></td>
+                  </tr>
+                  <tr>
+                    <th>Components unit</th>
+                    <td>Vitest, co-located tests.</td>
+                  </tr>
+                  <tr>
+                    <th>Visual regression</th>
+                    <td>Chromatic over Storybook builds.</td>
+                  </tr>
+                  <tr>
+                    <th>pg-boss</th>
+                    <td>
+                      Vitest with local Postgres on package docker compose.
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </article>
@@ -842,9 +1186,9 @@ pnpm setup:test && pnpm test:e2e</code></pre>
           <h3>GitHub workflows</h3>
           <p>
             Workflows under <code>.github/workflows</code> cover CI, Chromatic,
-            CodeQL, reusable AWS ECS deploy, and environment deploys for staging,
-            UAT, and production. The composite setup action installs pnpm, Node
-            22, and the frozen lockfile.
+            CodeQL, reusable AWS ECS deploy, and environment deploys for
+            staging, UAT, and production. The composite setup action installs
+            pnpm, Node 22, and the frozen lockfile.
           </p>
         </section>
 
@@ -860,16 +1204,53 @@ pnpm setup:test && pnpm test:e2e</code></pre>
 
           <table>
             <thead>
-              <tr><th>Integration</th><th>Primary files</th><th>Use</th></tr>
+              <tr>
+                <th>Integration</th>
+                <th>Primary files</th>
+                <th>Use</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td>AWS S3</td><td><code>src/lib/s3.ts</code>, <code>asset.service.ts</code></td><td>Assets, gazette PDFs, static site output.</td></tr>
-              <tr><td>AWS CodeBuild</td><td><code>server/modules/aws/codebuild.service.ts</code></td><td>Site rebuild and deployment triggers.</td></tr>
-              <tr><td>CloudFront</td><td><code>tooling/build/scripts/publisher.sh</code></td><td>Origin path swaps for published sites.</td></tr>
-              <tr><td>SearchSG</td><td><code>server/modules/searchsg</code></td><td>Search config and gazette document indexing.</td></tr>
-              <tr><td>Singpass / Mockpass</td><td><code>server/modules/auth/singpass</code>, <code>docker-compose.yml</code></td><td>Step-up identity and local OIDC simulation.</td></tr>
-              <tr><td>GrowthBook</td><td><code>src/lib/growthbook.ts</code></td><td>Feature flags on client and server.</td></tr>
-              <tr><td>Datadog</td><td><code>@isomer/logging/tracer</code>, browser RUM</td><td>Tracing, logging, and RUM.</td></tr>
+              <tr>
+                <td>AWS S3</td>
+                <td>
+                  <code>src/lib/s3.ts</code>, <code>asset.service.ts</code>
+                </td>
+                <td>Assets, gazette PDFs, static site output.</td>
+              </tr>
+              <tr>
+                <td>AWS CodeBuild</td>
+                <td><code>server/modules/aws/codebuild.service.ts</code></td>
+                <td>Site rebuild and deployment triggers.</td>
+              </tr>
+              <tr>
+                <td>CloudFront</td>
+                <td><code>tooling/build/scripts/publisher.sh</code></td>
+                <td>Origin path swaps for published sites.</td>
+              </tr>
+              <tr>
+                <td>SearchSG</td>
+                <td><code>server/modules/searchsg</code></td>
+                <td>Search config and gazette document indexing.</td>
+              </tr>
+              <tr>
+                <td>Singpass / Mockpass</td>
+                <td>
+                  <code>server/modules/auth/singpass</code>,
+                  <code>docker-compose.yml</code>
+                </td>
+                <td>Step-up identity and local OIDC simulation.</td>
+              </tr>
+              <tr>
+                <td>GrowthBook</td>
+                <td><code>src/lib/growthbook.ts</code></td>
+                <td>Feature flags on client and server.</td>
+              </tr>
+              <tr>
+                <td>Datadog</td>
+                <td><code>@isomer/logging/tracer</code>, browser RUM</td>
+                <td>Tracing, logging, and RUM.</td>
+              </tr>
             </tbody>
           </table>
 
@@ -878,8 +1259,14 @@ pnpm setup:test && pnpm test:e2e</code></pre>
             <article>
               <h3>Every minute</h3>
               <ul>
-                <li><code>schedule-publishing</code>: publish resources due at <code>scheduledAt</code>.</li>
-                <li><code>schedule-push-document</code>: push gazette PDFs to SearchSG.</li>
+                <li>
+                  <code>schedule-publishing</code>: publish resources due at
+                  <code>scheduledAt</code>.
+                </li>
+                <li>
+                  <code>schedule-push-document</code>: push gazette PDFs to
+                  SearchSG.
+                </li>
               </ul>
             </article>
             <article>
@@ -905,18 +1292,32 @@ pnpm setup:test && pnpm test:e2e</code></pre>
                 <li>Pages are thin; real UI lives in feature modules.</li>
                 <li>Feature modules should not cross-import each other.</li>
                 <li>Routers should stay thin; services own business logic.</li>
-                <li>Input validation belongs in <code>apps/studio/src/schemas</code>.</li>
-                <li>Permission checks and audit logging must happen in service-layer mutations.</li>
+                <li>
+                  Input validation belongs in
+                  <code>apps/studio/src/schemas</code>.
+                </li>
+                <li>
+                  Permission checks and audit logging must happen in
+                  service-layer mutations.
+                </li>
                 <li>Use <code>useZodForm</code> for forms when applicable.</li>
               </ul>
             </article>
             <article>
               <h3>Package conventions</h3>
               <ul>
-                <li>Prefer workspace/catalog dependency specifiers over raw versions.</li>
+                <li>
+                  Prefer workspace/catalog dependency specifiers over raw
+                  versions.
+                </li>
                 <li>Components render; Studio produces content.</li>
-                <li>Schema additions in components must be backward compatible.</li>
-                <li>Use <code>~/lib/tv</code> and <code>~/lib/twMerge</code> wrappers in components.</li>
+                <li>
+                  Schema additions in components must be backward compatible.
+                </li>
+                <li>
+                  Use <code>~/lib/tv</code> and
+                  <code>~/lib/twMerge</code> wrappers in components.
+                </li>
                 <li>New public components need Storybook coverage.</li>
                 <li>Kysely is preferred for new DB queries.</li>
               </ul>
@@ -932,16 +1333,69 @@ pnpm setup:test && pnpm test:e2e</code></pre>
 
           <table>
             <thead>
-              <tr><th>Risk</th><th>Why it matters</th><th>Mitigation</th></tr>
+              <tr>
+                <th>Risk</th>
+                <th>Why it matters</th>
+                <th>Mitigation</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td>Client login flag</td><td>LocalStorage only drives UX redirects and is bypassable.</td><td>Never treat it as auth; use protected tRPC procedures.</td></tr>
-              <tr><td>Dual ORM</td><td>Kysely and Prisma coexist and can produce inconsistent patterns.</td><td>Prefer one transaction owner per mutation; new code should favor Kysely.</td></tr>
-              <tr><td>Schema compatibility</td><td>Components schema changes can affect every published site.</td><td>Add optional fields first; coordinate Studio producer changes separately.</td></tr>
-              <tr><td>Audit log integrity</td><td>Mutations without audit trail are operationally risky.</td><td>Log real DB rows in the same transaction as the write.</td></tr>
-              <tr><td>External-service calls</td><td>Email, S3, Singpass, SearchSG, CodeBuild can be abused or fail.</td><td>Use procedure rate limits, generic errors, and structured logging.</td></tr>
-              <tr><td>Build type safety</td><td>Next build can ignore TypeScript build errors.</td><td>Run <code>pnpm typecheck</code> in CI and before risky merges.</td></tr>
-              <tr><td>Generated artifacts</td><td>DB clients and generated Kysely types can drift.</td><td>Run <code>pnpm generate</code> after schema changes.</td></tr>
+              <tr>
+                <td>Client login flag</td>
+                <td>
+                  LocalStorage only drives UX redirects and is bypassable.
+                </td>
+                <td>Never treat it as auth; use protected tRPC procedures.</td>
+              </tr>
+              <tr>
+                <td>Dual ORM</td>
+                <td>
+                  Kysely and Prisma coexist and can produce inconsistent
+                  patterns.
+                </td>
+                <td>
+                  Prefer one transaction owner per mutation; new code should
+                  favor Kysely.
+                </td>
+              </tr>
+              <tr>
+                <td>Schema compatibility</td>
+                <td>
+                  Components schema changes can affect every published site.
+                </td>
+                <td>
+                  Add optional fields first; coordinate Studio producer changes
+                  separately.
+                </td>
+              </tr>
+              <tr>
+                <td>Audit log integrity</td>
+                <td>Mutations without audit trail are operationally risky.</td>
+                <td>Log real DB rows in the same transaction as the write.</td>
+              </tr>
+              <tr>
+                <td>External-service calls</td>
+                <td>
+                  Email, S3, Singpass, SearchSG, CodeBuild can be abused or
+                  fail.
+                </td>
+                <td>
+                  Use procedure rate limits, generic errors, and structured
+                  logging.
+                </td>
+              </tr>
+              <tr>
+                <td>Build type safety</td>
+                <td>Next build can ignore TypeScript build errors.</td>
+                <td>
+                  Run <code>pnpm typecheck</code> in CI and before risky merges.
+                </td>
+              </tr>
+              <tr>
+                <td>Generated artifacts</td>
+                <td>DB clients and generated Kysely types can drift.</td>
+                <td>Run <code>pnpm generate</code> after schema changes.</td>
+              </tr>
             </tbody>
           </table>
         </section>
@@ -957,26 +1411,72 @@ pnpm setup:test && pnpm test:e2e</code></pre>
               <h3>Architecture and runtime</h3>
               <ul class="file-list">
                 <li><code>package.json</code> - root scripts and engines.</li>
-                <li><code>pnpm-workspace.yaml</code> - workspace globs and catalogs.</li>
+                <li>
+                  <code>pnpm-workspace.yaml</code> - workspace globs and
+                  catalogs.
+                </li>
                 <li><code>turbo.json</code> - task graph and tracked env.</li>
-                <li><code>apps/studio/src/pages/_app.tsx</code> - app providers.</li>
-                <li><code>apps/studio/src/pages/api/trpc/[trpc].ts</code> - tRPC handler.</li>
-                <li><code>apps/studio/src/server/trpc.ts</code> - procedures and middleware.</li>
-                <li><code>apps/studio/src/server/modules/_app.ts</code> - root router.</li>
-                <li><code>apps/studio/src/utils/trpc.ts</code> - client hooks.</li>
+                <li>
+                  <code>apps/studio/src/pages/_app.tsx</code> - app providers.
+                </li>
+                <li>
+                  <code>apps/studio/src/pages/api/trpc/[trpc].ts</code> - tRPC
+                  handler.
+                </li>
+                <li>
+                  <code>apps/studio/src/server/trpc.ts</code> - procedures and
+                  middleware.
+                </li>
+                <li>
+                  <code>apps/studio/src/server/modules/_app.ts</code> - root
+                  router.
+                </li>
+                <li>
+                  <code>apps/studio/src/utils/trpc.ts</code> - client hooks.
+                </li>
               </ul>
             </article>
             <article>
               <h3>Domains and packages</h3>
               <ul class="file-list">
-                <li><code>packages/db/prisma/schema.prisma</code> - canonical schema.</li>
-                <li><code>apps/studio/src/server/modules/resource/resource.service.ts</code> - content tree.</li>
-                <li><code>apps/studio/src/server/modules/page/page.service.ts</code> - page lifecycle.</li>
-                <li><code>apps/studio/src/server/modules/site/site.service.ts</code> - site config.</li>
-                <li><code>apps/studio/src/server/modules/permissions</code> - CASL abilities.</li>
-                <li><code>packages/components/src/schemas/main.ts</code> - published content schema.</li>
-                <li><code>packages/components/src/templates/next</code> - published-site renderer.</li>
-                <li><code>tooling/template/app/[[...permalink]]/page.tsx</code> - static route renderer.</li>
+                <li>
+                  <code>packages/db/prisma/schema.prisma</code> - canonical
+                  schema.
+                </li>
+                <li>
+                  <code
+                    >apps/studio/src/server/modules/resource/resource.service.ts</code
+                  >
+                  - content tree.
+                </li>
+                <li>
+                  <code
+                    >apps/studio/src/server/modules/page/page.service.ts</code
+                  >
+                  - page lifecycle.
+                </li>
+                <li>
+                  <code
+                    >apps/studio/src/server/modules/site/site.service.ts</code
+                  >
+                  - site config.
+                </li>
+                <li>
+                  <code>apps/studio/src/server/modules/permissions</code> - CASL
+                  abilities.
+                </li>
+                <li>
+                  <code>packages/components/src/schemas/main.ts</code> -
+                  published content schema.
+                </li>
+                <li>
+                  <code>packages/components/src/templates/next</code> -
+                  published-site renderer.
+                </li>
+                <li>
+                  <code>tooling/template/app/[[...permalink]]/page.tsx</code> -
+                  static route renderer.
+                </li>
               </ul>
             </article>
           </div>

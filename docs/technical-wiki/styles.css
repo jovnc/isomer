@@ -37,7 +37,11 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgb(99 91 255 / 16%), transparent 34rem),
+    radial-gradient(
+      circle at top left,
+      rgb(99 91 255 / 16%),
+      transparent 34rem
+    ),
     linear-gradient(180deg, #fbfcff 0%, var(--bg) 30rem);
   color: var(--ink);
 }
@@ -49,11 +53,7 @@ a {
 code,
 pre {
   font-family:
-    "IBM Plex Mono",
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
+    "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 code {

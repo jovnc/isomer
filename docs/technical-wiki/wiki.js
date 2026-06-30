@@ -77,23 +77,25 @@ document.addEventListener("keydown", (event) => {
   }
 })
 
-document.querySelectorAll("section[id] h2, header[id] h2").forEach((heading) => {
-  const parent = heading.closest("[id]")
-  if (!parent) return
+document
+  .querySelectorAll("section[id] h2, header[id] h2")
+  .forEach((heading) => {
+    const parent = heading.closest("[id]")
+    if (!parent) return
 
-  heading.classList.add("anchored-heading")
-  heading.tabIndex = 0
-  heading.title = "Click to copy a link to this section"
-  heading.addEventListener("click", async () => {
-    const url = `${window.location.origin}${window.location.pathname}#${parent.id}`
-    try {
-      await navigator.clipboard.writeText(url)
-      heading.dataset.copied = "true"
-      window.setTimeout(() => {
-        delete heading.dataset.copied
-      }, 1200)
-    } catch {
-      window.location.hash = parent.id
-    }
+    heading.classList.add("anchored-heading")
+    heading.tabIndex = 0
+    heading.title = "Click to copy a link to this section"
+    heading.addEventListener("click", async () => {
+      const url = `${window.location.origin}${window.location.pathname}#${parent.id}`
+      try {
+        await navigator.clipboard.writeText(url)
+        heading.dataset.copied = "true"
+        window.setTimeout(() => {
+          delete heading.dataset.copied
+        }, 1200)
+      } catch {
+        window.location.hash = parent.id
+      }
+    })
   })
-})
